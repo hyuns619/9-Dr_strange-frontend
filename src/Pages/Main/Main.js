@@ -52,7 +52,7 @@ class Main extends React.Component {
     window.removeEventListener("scroll", this.scrollHandler);
   }
 
-  // scroll을 내릴때 trancform, opacity 변경하는 이벤트
+  // scroll을 내릴때 transform, opacity 변경하는 이벤트
   scrollHandler = () => {
     const scroll = window.scrollY;
     const eventOffset = [7000, 10500, 18400];
