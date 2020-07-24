@@ -1,5 +1,5 @@
 {
-	"productListInfo": [
+	"products": [
 		{
 			"productName": "니콜라이",
 			"like": 213,
@@ -10,11 +10,7 @@
 			],
 			"size": { "220": true, "230": false, "240": false, "250": false, "260": true, "270": false, "280": false },
 			"originPrice": 150000,
-<<<<<<< HEAD
-			"salePrice": 130000,
-=======
 			"salePrice": 150000,
->>>>>>> master
 			"productNum": 24515013,
 			"subCategoryId": 3
 		},
@@ -41,11 +37,7 @@
 			],
 			"size": { "220": true, "230": false, "240": false, "250": false, "260": true, "270": false, "280": false },
 			"originPrice": 150000,
-<<<<<<< HEAD
-			"salePrice": 130000,
-=======
 			"salePrice": 150000,
->>>>>>> master
 			"productNum": 24515013,
 			"subCategoryId": 3
 		},
@@ -676,8 +668,6 @@
 			"salePrice": 150000,
 			"productNum": 2451500,
 			"subCategoryId": 2
-<<<<<<< HEAD
-=======
 		},
 		{
 			"productName": "라이커",
@@ -1443,7 +1433,6 @@
 			"salePrice": 130000,
 			"productNum": 24515012,
 			"subCategoryId": 1
->>>>>>> master
 		}
 	]
 }

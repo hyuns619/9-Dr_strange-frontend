@@ -7,57 +7,25 @@ class CartModal extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      productData: {},
       currentSize: 0,
       currentQuantity: 1,
-      currentSale: this.props.data.salePrice,
-      currentOrigin: this.props.data.originPrice,
-      productNum: this.props.data.productNum,
+      currentSale: 0,
+      currentOrigin: 0,
     };
   }
 
-  componentDidUpdate(prevProps, prevState) {
-    const { salePrice, originPrice, productNum } = this.props.data;
-    const isDiff = prevProps.data !== this.props.data;
-
-    if (isDiff) {
-      console.log("hi");
-      this.setState({
-        currentSale: salePrice,
-        currentOrigin: originPrice,
-        productNum: productNum,
-      });
-    }
+  componentDidMount() {
+    fetch("http://localhost:3000/data/productDetailInfo.json")
+      .then((res) => res.json())
+      .then((res) =>
+        this.setState({
+          productData: res.productDetailInfo,
+          currentSale: res.productDetailInfo.salePrice,
+          currentOrigin: res.productDetailInfo.originPrice,
+        })
+      );
   }
-
-  // 장바구니 버튼 클릭시 상품 정보 POST로 서버에 전송
-  addCartHandler = () => {
-    console.log(
-      "here",
-      this.state.productNum,
-      this.state.currentOrigin,
-      this.state.currentQuantity
-    );
-    fetch("http://10.58.5.123:8001/cart", {
-      method: "post",
-      headers: {
-        Authorization: localStorage.getItem("token"),
-      },
-      body: JSON.stringify({
-        productNum: +this.state.productNum,
-        currentSize: +this.state.currentSize,
-        currentOrigin: +this.state.currentOrigin,
-        currentSale: +this.state.currentSale,
-        currentQuantity: +this.state.currentQuantity,
-      }),
-    }).then(() => {
-      this.setState({
-        currentOrigin: +this.props.data.originPrice,
-        currentSale: +this.props.data.salePrice,
-        currentQuantity: 1,
-        currentSize: 0,
-      });
-    });
-  };
 
   // size button 클릭 시 선택한 size를 currentSize에 저장
   sizeClickHandler = (size) => {
@@ -75,33 +43,28 @@ class CartModal extends React.Component {
     }
   };
 
-  // price "-" button 클릭 시 수량 및 가격 minus
-  priceMinusHandler = () => {
+  // price +, - 버튼 클릭 시 수량 및 가격 변동
+  priceClickHandler = (type) => {
     const { currentQuantity, currentOrigin, currentSale } = this.state;
-    const { originPrice, salePrice } = this.props.data;
-    if (currentQuantity > 1) {
+    const { originPrice, salePrice } = this.state.productData;
+    if (currentQuantity > 1 && type === "minus") {
       this.setState({
         currentOrigin: +currentOrigin - +originPrice,
         currentSale: +currentSale - +salePrice,
         currentQuantity: currentQuantity - 1,
       });
+    } else if (type === "plus") {
+      this.setState({
+        currentOrigin: +currentOrigin + +originPrice,
+        currentSale: +currentSale + +salePrice,
+        currentQuantity: currentQuantity + 1,
+      });
     }
-  };
-
-  // price "+" button 클릭 시 수량 및 가격 plus
-  pricePlusHandler = () => {
-    const { currentQuantity, currentOrigin, currentSale } = this.state;
-    const { originPrice, salePrice } = this.props.data;
-    this.setState({
-      currentOrigin: +currentOrigin + +originPrice,
-      currentSale: +currentSale + +salePrice,
-      currentQuantity: currentQuantity + 1,
-    });
   };
 
   // input 창에 수량 입력 시 현재 수량 및 가격 변동
   setInputHandler = (e) => {
-    const { originPrice, salePrice } = this.props.data;
+    const { originPrice, salePrice } = this.state.productData;
     this.setState({
       currentQuantity: +e.target.value,
       currentOrigin: +originPrice * +e.target.value,
@@ -111,86 +74,89 @@ class CartModal extends React.Component {
 
   render() {
     const {
+      productData,
       currentSize,
       currentQuantity,
       currentOrigin,
       currentSale,
     } = this.state;
-    const { modalClickHandelr, data } = this.props;
+    const { modalClickHandelr } = this.props;
 
     return (
-      <section className="CartModal">
-        <div className="modal_top">
-          <h1>옵션</h1>
-          <img alt="cancel" src={MODAL_CANCEL} onClick={modalClickHandelr} />
-        </div>
-
-        <div className="product_title">
-          <h1>{data.productName}</h1>
-          <p>컬러 : {data.color}</p>
-        </div>
-
-        <div className="now_in_stock">
-          <h2>사이즈(UK) 선택</h2>
-          <a className="underline" href="">
-            품절상품 재입고 알림
-          </a>
-        </div>
-
-        <div className="size_option">
-          {Object.entries(data.size).map((size, idx) => (
-            <SizeBtn
-              size={size[0]}
-              soldout={size[1]}
-              key={idx}
-              currentSize={currentSize}
-              sizeClickHandler={this.sizeClickHandler}
-            />
-          ))}
-        </div>
-
-        <dciv className="product_price_form">
-          <div className="product_quantity">
-            <p>수량</p>
-            <input
-              className="main-font"
-              type="text"
-              value={currentQuantity}
-              onChange={this.setInputHandler}
-            />
-            <button onClick={this.priceMinusHandler}>
-              <img alt="-" className="btn_minus" src={MINUS} />
-            </button>
-            <button onClick={this.pricePlusHandler}>
-              <img alt="+" className="btn_plus" src={PLUS} />
-            </button>
+      productData.productNum > 0 && (
+        <section className="CartModal">
+          <div className="modal_top">
+            <h1>옵션</h1>
+            <img alt="cancel" src={MODAL_CANCEL} onClick={modalClickHandelr} />
           </div>
-          <div className="product_item_price num-font">
-            {currentSale !== currentOrigin ? (
-              <>
-                <span className="sale_price">
-                  {(+currentSale).toLocaleString()}
-                </span>
-                <span className="origin_price_ws">
-                  {(+currentOrigin).toLocaleString()}
-                </span>
-              </>
-            ) : (
-              <>
-                <span className="origin_price">
-                  {(+currentOrigin).toLocaleString()}
-                </span>
-              </>
-            )}
-          </div>
-        </dciv>
 
-        <div className={currentSize !== 0 ? "cart_btn_on" : "cart_btn_off"}>
-          <button onClick={this.addCartHandler}>
+          <div className="product_title">
+            <h1>{productData.productName}</h1>
+            <p>컬러 : {productData.color}</p>
+          </div>
+
+          <div className="now_in_stock">
+            <h2>사이즈(UK) 선택</h2>
+            <a className="underline" href="">
+              품절상품 재입고 알림
+            </a>
+          </div>
+
+          <div className="size_option">
+            {Object.entries(productData.size).map((size, idx) => (
+              <SizeBtn
+                size={size[0]}
+                soldout={size[1]}
+                key={idx}
+                currentSize={currentSize}
+                sizeClickHandler={this.sizeClickHandler}
+              />
+            ))}
+          </div>
+
+          <dciv className="product_price_form">
+            <div className="product_quantity">
+              <p>수량</p>
+              <input
+                className="main-font"
+                type="text"
+                value={currentQuantity}
+                onChange={this.setInputHandler}
+              />
+              <button onClick={() => this.priceClickHandler("minus")}>
+                <img alt="-" className="btn_minus" src={MINUS} />
+              </button>
+              <button onClick={() => this.priceClickHandler("plus")}>
+                <img alt="+" className="btn_plus" src={PLUS} />
+              </button>
+            </div>
+            <div className="product_item_price num-font">
+              {currentSale !== currentOrigin ? (
+                <>
+                  <span className="sale_price">
+                    {(+currentSale).toLocaleString()}
+                  </span>
+                  <span className="origin_price_ws">
+                    {(+currentOrigin).toLocaleString()}
+                  </span>
+                </>
+              ) : (
+                <>
+                  <span className="origin_price">
+                    {(+currentOrigin).toLocaleString()}
+                  </span>
+                </>
+              )}
+            </div>
+          </dciv>
+
+          <div className={currentSize !== 0 ? "cart_btn_on" : "cart_btn_off"}>
+            {/* <button onClick={() => addCartHandler(productData)}> */}
             {currentSize !== 0 ? "장바구니 담기" : "사이즈를 선택해주세요."}
-          </button>
-        </div>
-      </section>
+            {/* </button> */}
+          </div>
+        </section>
+      )
     );
   }
 }

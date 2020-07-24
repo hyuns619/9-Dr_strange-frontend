@@ -32,7 +32,9 @@ class MainScrollEvent extends React.Component {
         <div className="main_scroll_img p-s t-0 m-auto">
           <div className="main_scroll_relative">
             <img alt="main_scroll_img" src={backImg} style={style_left} />
-            <img alt="main_scroll_img" src={backImg2} style={style_rigth} />
+            {backImg2 && (
+              <img alt="main_scroll_img" src={backImg2} style={style_rigth} />
+            )}
           </div>
         </div>
 

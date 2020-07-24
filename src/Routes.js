@@ -6,6 +6,7 @@ import SignUp from "./Pages/SignUp/SignUp";
 import ProductList from "Pages/ProductList/ProductList";
 import ProductDetail from "Pages/ProductDetail/ProductDetail";
 import Cart from "Pages/Cart/Cart";
+import CartModal from "Components/CartModal/CartModal";
 import MyPageHome from "Pages/MyPage/MyPageHome";
 
 class Routes extends React.Component {
@@ -17,6 +18,7 @@ class Routes extends React.Component {
           <Route exact path="/login" component={Login} />
           <Route exact path="/signup" component={SignUp} />
           <Route exact path="/cart" component={Cart} />
+          <Route exact path="/cart_modal" component={CartModal} />
           <Route exact path="/products/search" component={ProductList} />
           <Route exact path="/products/list" component={ProductList} />
           <Route

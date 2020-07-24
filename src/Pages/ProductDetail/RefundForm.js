@@ -9,7 +9,7 @@ class RefundForm extends React.Component {
     };
   }
 
-  // 리뷰 펼쳐보기/접기 버튼 클릭시 마다 moreBtn 상태 변경
+  // +, - 버튼 클릭시 마다 moreBtn 상태 변경
   moreBtnClickHandler = () => {
     this.setState({
       moreBtn: !this.state.moreBtn,

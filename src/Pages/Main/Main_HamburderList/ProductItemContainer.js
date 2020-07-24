@@ -1,4 +1,6 @@
 import React from "react";
+import ReactModal from "react-modal";
+import CartModal from "Components/CartModal/CartModal";
 import WishButton from "Components/WishButton";
 
 class ProductItemContainer extends React.Component {
@@ -10,51 +12,80 @@ class ProductItemContainer extends React.Component {
       like: 0,
       productImg: [],
       originPrice: 0,
+      modalIsOpen: false,
     };
   }
 
+  // 장바구니 버튼 클릭시 modalIsOpen state 변경
+  modalClickHandelr = () => {
+    const { modalIsOpen } = this.state;
+    this.setState({
+      modalIsOpen: !modalIsOpen,
+    });
+  };
+
   render() {
-    const { componentKey, data } = this.props;
+    const { modalIsOpen } = this.state;
+    const {
+      componentKey,
+      data: { productName, salePrice, originPrice },
+    } = this.props;
+    const [productImgLeft, productImgRight] = this.props.data.productImg;
 
     return (
       <div className="product_item out_n" key={componentKey}>
         <div className="ProductItemContainer">
-          <h2 className="product_item_container_title">{data.productName}</h2>
+          <h2 className="product_item_container_title">{productName}</h2>
           <div>
             <WishButton />
           </div>
           <div className="product_item_img_box">
-            <img
-              alt={data.productName}
-              src={data.productImg && data.productImg[0]}
-            />
-            <img
-              alt={data.productName}
-              src={data.productImg && data.productImg[1]}
-            />
+            <img alt={productName} src={productImgLeft && productImgLeft} />
+            <img alt={productName} src={productImgRight && productImgRight} />
           </div>
           <div className="product_item_container_bottom">
             <div className="product_item_price_wrapper num-font">
               <span className="num-font">
-                {data.salePrice !== data.originPrice ? (
+                {salePrice !== originPrice ? (
                   <>
                     <p className="sale_price num-font">
-                      {(+data.salePrice).toLocaleString()}
+                      {(+salePrice).toLocaleString()}
                     </p>
                     <p className="origin_price_ws num-font">
-                      {(+data.originPrice).toLocaleString()}
+                      {(+originPrice).toLocaleString()}
                     </p>
                   </>
-                ) : data.salePrice ? (
+                ) : salePrice ? (
                   <p className="origin_price num-font">
-                    {(+data.originPrice).toLocaleString()}
+                    {(+originPrice).toLocaleString()}
                   </p>
                 ) : (
                   ""
                 )}
               </span>
             </div>
-            <button className="add_to_cart">장바구니 담기</button>
+            <button className="add_to_cart" onClick={this.modalClickHandelr}>
+              장바구니 담기
+            </button>
+            <ReactModal
+              isOpen={modalIsOpen}
+              onRequestClose={this.modalClickHandelr}
+              style={{
+                overlay: {},
+                content: {
+                  border: "none",
+                  borderRadius: "none",
+                  width: "600px",
+                  height: "500px",
+                  padding: "0",
+                  left: "50%",
+                  top: "50%",
+                  transform: "translate(-50%, -50%)",
+                },
+              }}
+            >
+              <CartModal modalClickHandelr={this.modalClickHandelr} />
+            </ReactModal>
           </div>
         </div>
       </div>

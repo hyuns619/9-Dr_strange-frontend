@@ -15,6 +15,7 @@ import gender_w from "Images/detail/gender_w.svg";
 // navbar
 import nav_logo from "Images/Nav/logo.svg";
 import nav_hamburger from "Images/Nav/hamburger_icon.svg";
+import { addCart } from "store/actions";
 
 // export
 export const LOGO = nav_logo;
@@ -157,6 +158,11 @@ export const WISH_BTN1 =
 export const WISH_BTN2 =
   "M17 .4c-1.7 0-3.3.7-4.5 1.9l-.5.4-.4-.4a6.37 6.37 0 00-9.1-.1c-2.5 2.5-2.5 6.5 0 9l9.5 9.5 9.5-9.5c1.2-1.2 1.9-2.8 1.9-4.5 0-3.5-2.9-6.4-6.4-6.3zm2.4 8.8L12 16.6 4.6 9.2c-1.3-1.3-1.3-3.5 0-4.9.6-.6 1.5-1 2.4-1 .9 0 1.8.4 2.4 1L12 6.9l2.5-2.5c1.3-1.3 3.6-1.3 4.9 0 1.4 1.3 1.4 3.4 0 4.8z";
 
+// API
+export const DETAIL_API = "http://10.58.5.123:8001/products";
+export const LIST_API = "http://10.58.5.123:8001/products/list";
+export const CART_API = "http://10.58.5.123:8001/cart";
+
 // Object
 // product_list
 export const category = {
@@ -180,7 +186,6 @@ export const category_description = {
 };
 
 //cart
-
 export const PATH_CHECKBOX_NONE = "M19 19H0V0h19v19zM3 16h13V3H3v13z";
 
 export const PATH_CHECKBOX_ACTIVE =
