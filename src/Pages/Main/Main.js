@@ -21,11 +21,9 @@ import {
 import "Pages/Main/Main.scss";
 
 class Main extends React.Component {
-  constructor(props) {
-    super(props);
+  constructor() {
+    super();
     this.state = {
-      // opacity: 1,
-      // scale: 1,
       firstOpacity: 1,
       firstScale: 1,
       secondOpacity: 1,
