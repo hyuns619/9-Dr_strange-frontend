@@ -1,5 +1,5 @@
-/* eslint-disable jsx-a11y/anchor-is-valid */
 import React from "react";
+import { connect } from "react-redux";
 import Nav from "Components/Nav/Nav";
 import Footer from "Components/Footer/Footer";
 import Path from "Components/Path";
@@ -11,7 +11,10 @@ import SubTitle from "./SubTitle";
 import ReviewBoard from "./ReviewBoard";
 import QnaBoard from "./QnaBoard";
 import RefundForm from "./RefundForm";
+import { addCart } from "store/actions";
 import {
+  DETAIL_API,
+  CART_API,
   MINUS,
   PLUS,
   PATH_SHARE,
@@ -40,34 +43,33 @@ class ProductDetail extends React.Component {
 
   // ProductDetailInfo data 받아오기
   componentDidMount() {
-    fetch(`http://10.58.5.123:8001/products/${this.props.match.params.id}`)
+    const productAPI = this.props.match.params.id;
+    // fetch(`${DETAIL_API}/${productAPI}`)
+    fetch("http://localhost:3000/data/productDetailInfo.json")
       .then((res) => res.json())
       .then((res) =>
         this.setState({
           productData: res.productDetailInfo,
-        })
-      )
-      .finally(() => {
-        this.setState({
-          productNum: this.state.productData.productNum,
+          productNum: res.productDetailInfo.productNum,
           productThumbnail: Object.entries(
-            this.state.productData.productThumbnail
+            res.productDetailInfo.productThumbnail
           ),
-          sizeArr: Object.entries(this.state.productData.size),
-          like: this.state.productData.like,
-          currentOrigin: +this.state.productData.originPrice,
-          currentSale: +this.state.productData.salePrice,
-          reviewArr: this.state.productData.reviewInfo,
-          productImg: this.state.productData.productImg,
-        });
-      });
+          sizeArr: Object.entries(res.productDetailInfo.size),
+          like: res.productDetailInfo.like,
+          currentOrigin: +res.productDetailInfo.originPrice,
+          currentSale: +res.productDetailInfo.salePrice,
+          reviewArr: res.productDetailInfo.reviewInfo,
+          productImg: res.productDetailInfo.productImg,
+        })
+      );
     window.scrollTo(0, 0);
   }
 
   // color 버튼 클릭할 때 마다, 다른 상품으로 렌더링
   componentDidUpdate(prevProps) {
     if (prevProps.match.params.id !== this.props.match.params.id) {
-      fetch(`http://10.58.5.123:8001/products/${this.props.match.params.id}`)
+      const productAPI = this.props.match.params.id;
+      fetch(`${DETAIL_API}/${productAPI}`)
         .then((res) => res.json())
         .then((res) =>
           this.setState({
@@ -91,30 +93,6 @@ class ProductDetail extends React.Component {
     }
   }
 
-  // 장바구니 버튼 클릭시 상품 정보 POST로 서버에 전송
-  addCartHandler = () => {
-    fetch("http://10.58.5.123:8001/cart", {
-      method: "post",
-      headers: {
-        Authorization: localStorage.getItem("token"),
-      },
-      body: JSON.stringify({
-        productNum: this.state.productNum,
-        currentSize: this.state.currentSize,
-        currentOrigin: this.state.currentOrigin,
-        currentSale: this.state.currentSale,
-        currentQuantity: this.state.currentQuantity,
-      }),
-    }).then(() => {
-      this.setState({
-        currentOrigin: +this.state.productData.originPrice,
-        currentSale: +this.state.productData.salePrice,
-        currentQuantity: 1,
-        currentSize: 0,
-      });
-    });
-  };
-
   // size button 클릭 시 선택한 size를 currentSize에 저장
   sizeClickHandler = (size) => {
     const { soldout } = this.props;
@@ -131,28 +109,23 @@ class ProductDetail extends React.Component {
     }
   };
 
-  // price "-" button 클릭 시 수량 및 가격 minus
-  priceMinusHandler = () => {
+  // price +, - 버튼 클릭 시 수량 및 가격 변동
+  priceClickHandler = (type) => {
     const { currentQuantity, currentOrigin, currentSale } = this.state;
     const { originPrice, salePrice } = this.state.productData;
-    if (currentQuantity > 1) {
+    if (currentQuantity > 1 && type === "minus") {
       this.setState({
         currentOrigin: +currentOrigin - +originPrice,
         currentSale: +currentSale - +salePrice,
         currentQuantity: currentQuantity - 1,
       });
+    } else if (type === "plus") {
+      this.setState({
+        currentOrigin: +currentOrigin + +originPrice,
+        currentSale: +currentSale + +salePrice,
+        currentQuantity: currentQuantity + 1,
+      });
     }
-  };
-
-  // price "+" button 클릭 시 수량 및 가격 plus
-  pricePlusHandler = () => {
-    const { currentQuantity, currentOrigin, currentSale } = this.state;
-    const { originPrice, salePrice } = this.state.productData;
-    this.setState({
-      currentOrigin: +currentOrigin + +originPrice,
-      currentSale: +currentSale + +salePrice,
-      currentQuantity: currentQuantity + 1,
-    });
   };
 
   // input 창에 수량 입력 시 현재 수량 및 가격 변동
@@ -170,6 +143,25 @@ class ProductDetail extends React.Component {
     const { reviewFilter } = this.state;
     this.setState({
       reviewFilter: reviewFilter + 3,
+    });
+  };
+
+  addCartHandler = (clearCartInfo) => {
+    const { productData, currentSize, currentQuantity } = this.state;
+    const { addCart } = this.props;
+    const cartInfo = { ...productData, currentSize, currentQuantity };
+    addCart(cartInfo);
+    alert("상품이 장바구니에 담겼습니다.");
+    clearCartInfo();
+  };
+
+  clearCartInfo = () => {
+    const { originPrice, salePrice } = this.state.productData;
+    this.setState({
+      currentSize: 0,
+      currentOrigin: +originPrice,
+      currentSale: +salePrice,
+      currentQuantity: 1,
     });
   };
 
@@ -307,10 +299,10 @@ class ProductDetail extends React.Component {
                       value={currentQuantity}
                       onChange={this.setInputHandler}
                     />
-                    <button onClick={this.priceMinusHandler}>
+                    <button onClick={() => this.priceClickHandler("minus")}>
                       <img alt="-" className="btn_minus" src={MINUS} />
                     </button>
-                    <button onClick={this.pricePlusHandler}>
+                    <button onClick={() => this.priceClickHandler("plus")}>
                       <img alt="+" className="btn_plus" src={PLUS} />
                     </button>
                   </div>
@@ -337,7 +329,7 @@ class ProductDetail extends React.Component {
                 <div className="buying_btn">
                   <button
                     className="buying_btn_cart main-font"
-                    onClick={this.addCartHandler}
+                    onClick={() => this.addCartHandler(this.clearCartInfo)}
                   >
                     장바구니
                   </button>
@@ -649,4 +641,4 @@ class ProductDetail extends React.Component {
   }
 }
 
-export default ProductDetail;
+export default connect(null, { addCart })(ProductDetail);

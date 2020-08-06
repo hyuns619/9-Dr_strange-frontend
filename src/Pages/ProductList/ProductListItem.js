@@ -9,10 +9,7 @@ class ProductListItem extends React.Component {
   constructor() {
     super();
     this.state = {
-      modalData: {},
       modalIsOpen: false,
-      currentQuantity: 1,
-      currentSize: 0,
     };
   }
 
@@ -23,91 +20,82 @@ class ProductListItem extends React.Component {
     });
   };
 
-  // 장바구니 버튼 클릭시 제품 정보 get
-  getDataHandelr = () => {
-    fetch("http://10.58.5.123:8001/products/modal", {
-      method: "post",
-      body: JSON.stringify({
-        productNum: this.props.data.productNum,
-      }),
-    })
-      .then((res) => res.json())
-      .then((res) => {
-        console.log(res.products);
-        this.setState({
-          modalData: res.products,
-          currentOrigin: +res.products.originPrice,
-          currentSale: +res.products.salePrice,
-          modalIsOpen: !this.state.modalIsOpen,
-        });
-      });
-  };
-
   render() {
-    const { modalIsOpen, modalData } = this.state;
-    const { data, clickHandler } = this.props;
+    const { modalIsOpen } = this.state;
+    const {
+      clickHandler,
+      data: {
+        productImg,
+        productNum,
+        productName,
+        color,
+        like,
+        salePrice,
+        originPrice,
+      },
+    } = this.props;
+    const [productImgLeft, productImgRight] = productImg;
+
+    const styleSet = {
+      overlay: {},
+      content: {
+        border: "none",
+        borderRadius: "none",
+        width: "600px",
+        height: "500px",
+        padding: "0",
+        left: "50%",
+        top: "50%",
+        transform: "translate(-50%, -50%)",
+      },
+    };
 
     return (
       <section className="ProductListItem">
-        {data.productImg.length === 1 ? (
+        {productImg.length === 1 ? (
           <div
             className="product_img_one"
-            onClick={() => clickHandler(data.productNum)}
+            onClick={() => clickHandler(productNum)}
           >
-            <img alt="product_list_img" src={data.productImg[0]} />
+            <img alt="product_list_img" src={productImgLeft} />
           </div>
         ) : (
           <div
             className="product_img_two"
-            onClick={() => clickHandler(data.productNum)}
+            onClick={() => clickHandler(productNum)}
           >
-            <img alt="product_list_img" src={data.productImg[0]} />
-            <img alt="product_list_img" src={data.productImg[1]} />
+            <img alt="product_list_img" src={productImgLeft} />
+            <img alt="product_list_img" src={productImgRight} />
           </div>
         )}
         <div className="product_list_info">
           <div className="list_info_content">
-            <h2>{data.productName}</h2>
-            <p className="product_color">{data.color}</p>
-            <ListWishButton like={data.like} />
+            <h2>{productName}</h2>
+            <p className="product_color">{color}</p>
+            <ListWishButton like={like} />
           </div>
           <div className="list_info_option">
-            {data.salePrice !== data.originPrice ? (
+            {salePrice !== originPrice ? (
               <>
                 <p className="sale_price num-font">
-                  {(+data.salePrice).toLocaleString()}
+                  {(+salePrice).toLocaleString()}
                 </p>
                 <p className="origin_price_ws num-font">
-                  {(+data.originPrice).toLocaleString()}
+                  {(+originPrice).toLocaleString()}
                 </p>
               </>
             ) : (
               <p className="origin_price num-font">
-                {(+data.originPrice).toLocaleString()}
+                {(+originPrice).toLocaleString()}
               </p>
             )}
-            <button onClick={this.getDataHandelr}>장바구니 담기</button>
+            <button onClick={this.modalClickHandelr}>장바구니 담기</button>
             <ReactModal
               isOpen={modalIsOpen}
               onRequestClose={this.modalClickHandelr}
-              style={{
-                overlay: {},
-                content: {
-                  border: "none",
-                  borderRadius: "none",
-                  width: "600px",
-                  height: "500px",
-                  padding: "0",
-                  left: "50%",
-                  top: "50%",
-                  transform: "translate(-50%, -50%)",
-                },
-              }}
+              style={styleSet}
             >
-              <CartModal
-                modalClickHandelr={this.modalClickHandelr}
-                data={modalData}
-              />
+              <CartModal modalClickHandelr={this.modalClickHandelr} />
             </ReactModal>
           </div>
         </div>

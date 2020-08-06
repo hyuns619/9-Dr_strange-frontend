@@ -26,6 +26,8 @@ class ListWishButton extends React.Component {
   }
 
   render() {
+    const { click, wishNum } = this.state;
+
     return (
       <button className="WishButton">
         <svg
@@ -38,13 +40,11 @@ class ListWishButton extends React.Component {
             pid="0"
             className="st0"
             d={WISH_BTN1}
-            style={{ fill: this.state.click ? "yellow" : "transparent" }}
+            style={{ fill: click ? "yellow" : "transparent" }}
           ></path>
           <path pid="1" className="st1" d={WISH_BTN2}></path>
         </svg>
-        <span className="wish_number">
-          {this.state.click ? this.state.wishNum + 1 : this.state.wishNum}
-        </span>
+        <span className="wish_number">{click ? wishNum + 1 : wishNum}</span>
       </button>
     );
   }

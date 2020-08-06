@@ -6,7 +6,7 @@ import Footer from "Components/Footer/Footer";
 import ProductListItem from "./ProductListItem";
 import Path from "Components/Path";
 import ScrollTopBtn from "Components/ScrollTopBtn";
-import { PATH_BACK, category, category_description } from "config";
+import { LIST_API, PATH_BACK, category, category_description } from "config";
 import "./ProductList.scss";
 
 class ProductList extends React.Component {
@@ -16,20 +16,19 @@ class ProductList extends React.Component {
       productListData: [],
       currentUserCategoryId: 0,
       currentVisibleProducts: 18,
-      loading: false,
     };
   }
 
-  // product list data 받아오기
   componentDidMount() {
-    fetch(
-      `http://10.58.5.123:8001/products/list?menu_name=${this.props.match.params.category}`
-    )
+    const listAPI = this.props.match.params.category;
+    // fetch(
+    //   `${LIST_API}?menu_name=${listAPI}`
+    // )
+    fetch("http://localhost:3000/data/productListInfo.json")
       .then((res) => res.json())
       .then((res) =>
         this.setState({
           productListData: res.products,
-          loading: true,
         })
       );
   }
@@ -105,13 +104,12 @@ class ProductList extends React.Component {
   };
 
   render() {
-    const { loading, productListData, currentUserCategoryId } = this.state;
+    const { productListData, currentUserCategoryId } = this.state;
     const product_list_filter = this.imgArraySorter(productListData).filter(
       (_, idx) => idx < this.state.currentVisibleProducts
     );
-    console.log("list state : ", this.state.productListData);
 
-    return loading ? (
+    return productListData ? (
       <section className="ProductList" id="scroll_top">
         <Nav />
         <article className="product_list_title m-w-1140 m-auto">

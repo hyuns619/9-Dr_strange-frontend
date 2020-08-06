@@ -1,4 +1,5 @@
 import React from "react";
+import { connect } from "react-redux";
 import EmptyCart from "./EmptyCart";
 import Nav from "Components/Nav/Nav";
 import Footer from "Components/Footer/Footer";
@@ -16,12 +17,44 @@ class Cart extends React.Component {
     this.state = {
       checkClick: true,
       select: 1,
-      products: [],
       totalPrice: 0,
       totalDiscountedPrice: 0,
-      finalPrice: 0,
     };
   }
+
+  componentDidMount() {
+    this.setPriceState();
+  }
+
+  componentDidUpdate(prevProps, _) {
+    if (this.props.cartList !== prevProps.cartList) {
+      this.setPriceState();
+    }
+  }
+
+  getTotalPrice = (data) => {
+    let result = 0;
+    for (let i in data) {
+      result += data[i].originPrice;
+    }
+    return result;
+  };
+
+  getTotalDiscountedPrice = (data) => {
+    let result = 0;
+    for (let i in data) {
+      result += data[i].originPrice - data[i].salePrice;
+    }
+    return result;
+  };
+
+  setPriceState = () => {
+    const { cartList } = this.props;
+    this.setState({
+      totalPrice: this.getTotalPrice(cartList),
+      totalDiscountedPrice: this.getTotalDiscountedPrice(cartList),
+    });
+  };
 
   checkBoxClickHandler = () => {
     this.setState({
@@ -29,63 +62,17 @@ class Cart extends React.Component {
     });
   };
 
-  componentDidMount() {
-    fetch("http://10.58.5.123:8001/cart", {
-      method: "get",
-      headers: { Authorization: localStorage.getItem("token") },
-    })
-      .then((res) => res.json())
-      .then(
-        (res) =>
-          this.setState({
-            products: res.products,
-            totalDiscountedPrice: res.totalDiscountedPrice,
-            totalPrice: res.totalPrice,
-            finalPrice: res.finalPrice,
-            select: res.products.length,
-          })
-        // console.log(res)
-      );
-  }
-
-  deleteAllHandler = () => {
-    this.setState({
-      select: 0,
-      products: [],
-    });
-  };
-
-  selectDelHandler = (index) => {
-    const filteredList = this.state.products.filter((_, idx) => idx !== index);
-    this.setState({
-      products: filteredList,
-      select: this.state.select - 1,
-    });
-
-    fetch("http://10.58.5.123:8001/cart", {
-      method: "POST",
-      headers: { Authorization: localStorage.getItem("token") },
-      body: JSON.stringify({ cartId: filteredList[0] }),
-    });
-  };
-
   render() {
-    const {
-      checkClick,
-      select,
-      products,
-      totalDiscountedPrice,
-      totalPrice,
-      finalPrice,
-    } = this.state;
-    console.log(products);
+    const { checkClick, select, totalPrice, totalDiscountedPrice } = this.state;
+    const { cartList } = this.props;
 
     return (
       <div className="Cart">
         <Nav />
+
         <section
           className="cart_wrapper"
-          style={{ display: this.state.select === 0 ? "none" : "block" }}
+          style={{ display: select === 0 ? "none" : "block" }}
         >
           <div className="cart_header">
             <button>
@@ -110,8 +97,8 @@ class Cart extends React.Component {
                     for="checktest"
                     className="check_label"
                     style={{
-                      background: this.state.checkClick ? "" : "none",
-                      border: this.state.checkClick ? "none" : "3px solid",
+                      background: checkClick ? "" : "none",
+                      border: checkClick ? "none" : "3px solid",
                     }}
                   />
                   <p>전체선택</p>
@@ -134,16 +121,14 @@ class Cart extends React.Component {
                 </button>
               </div>
             </div>
-            {products.map((data, idx) => (
+            {cartList.map((data, idx) => (
               <CartProductList
                 click={checkClick}
-                checkBoxClickHandler={this.checkBoxClickHandler}
+                data={data}
+                itemIndex={idx}
+                key={data.productNum}
                 select={select}
-                products={products}
-                idx={idx}
-                index={idx}
-                data={products}
-                selectDelHandler={this.selectDelHandler}
+                checkBoxClickHandler={this.checkBoxClickHandler}
               />
             ))}
 
@@ -167,7 +152,7 @@ class Cart extends React.Component {
                 <ul className="final_price">
                   <li className="final_price">총 결제 예정 금액</li>
                   <li className="final_price_num num-font">
-                    {finalPrice.toLocaleString()}
+                    {(totalPrice - totalDiscountedPrice).toLocaleString()}
                   </li>
                 </ul>
               </div>
@@ -180,16 +165,16 @@ class Cart extends React.Component {
             <ScrollTopBtn />
           </div>
         </section>
-
-        <EmptyCart
-          select={select}
-          style={{ display: this.state.select === 0 ? "block" : "none" }}
-        />
-
         <Footer />
       </div>
     );
   }
 }
 
-export default Cart;
+const mapStateToProps = (state) => {
+  return {
+    cartList: state.cartList,
+  };
+};
+
+export default connect(mapStateToProps)(Cart);

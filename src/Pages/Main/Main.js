@@ -7,6 +7,7 @@ import Footer from "Components/Footer/Footer";
 import MainImageInfo from "./Main_ImageInfo/MainImageInfo";
 import MainScrollEvent from "./Main_ScrollEvent/MainScrollEvent";
 import ProductPreview from "Components/ProductPreview";
+import { throttle } from "./scrollThrottle";
 import {
   MAIN_INFO_EVENT1,
   MAIN_INFO_EVENT2,
@@ -23,8 +24,14 @@ class Main extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      opacity: 1,
-      scale: 1,
+      // opacity: 1,
+      // scale: 1,
+      firstOpacity: 1,
+      firstScale: 1,
+      secondOpacity: 1,
+      secondScale: 1,
+      thirdOpacity: 1,
+      thirdScale: 1,
       transformX: 0,
       womenData: [],
       menData: [],
@@ -32,9 +39,11 @@ class Main extends React.Component {
     };
   }
 
-  // 첫 render 후에 scroll 이벤트 등록 & product main list data 받아오기
   componentDidMount() {
-    window.addEventListener("scroll", this.scrollHandler);
+    window.addEventListener(
+      "scroll",
+      throttle(() => this.scrollHandler(this.setScrollConfig), 10)
+    );
     // fetch("http://10.58.5.123:8001/bestseller")
     fetch("http://localhost:3000/data/category.json")
       .then((res) => res.json())
@@ -47,43 +56,60 @@ class Main extends React.Component {
       );
   }
 
-  // scroll 이벤트 사용 후에는 다시 unmount
   componentWillUnmount() {
     window.removeEventListener("scroll", this.scrollHandler);
   }
 
   // scroll을 내릴때 transform, opacity 변경하는 이벤트
+  setScrollConfig = (scroll) => {
+    const section = {
+      [scroll > 7000 && scroll < 10500]: [7000, "first"],
+      [scroll > 10500 && scroll < 18400]: [10500, "second"],
+      [scroll > 13600 && scroll < 14800]: [13600, "first"],
+      [scroll > 18400]: [18400, "third"],
+    };
+    return (
+      Object.keys(section).includes("true") && {
+        sectionBrake: section["true"][0],
+        currentOpacity: section["true"][1] + "Opacity",
+        currentScale: section["true"][1] + "Scale",
+      }
+    );
+  };
+
   scrollHandler = () => {
     const scroll = window.scrollY;
-    const eventOffset = [7000, 10500, 18400];
 
-    // opacity, scale style
-    for (let i in eventOffset) {
-      if (scroll > eventOffset[i] && scroll < eventOffset[i] + 600) {
-        this.setState({
-          opacity: 1 - (scroll - eventOffset[i]) / 1000,
-        });
-      }
-      if (scroll > eventOffset[i] + 800 && scroll < eventOffset[i] + 1500) {
-        this.setState({
-          scale: 1 + (scroll - (eventOffset[i] + 800)) / 6000,
-        });
-      }
-      // style reset
-      if (scroll > eventOffset[i] + 2300 && scroll < eventOffset[i] + 2400) {
-        this.setState({
-          opacity: 1,
-          scale: 1,
-        });
-      }
-    }
+    if (scroll < 7000) return;
 
-    // transformX style
-    if (window.scrollY > 13600 && window.scrollY < 14800) {
-      this.setState({
-        transformX: (window.scrollY - 13600) / 10,
-      });
-    }
+    const { sectionBrake, currentOpacity, currentScale } = this.setScrollConfig(
+      scroll
+    );
+
+    let eventBrake = scroll - sectionBrake;
+    let opacity = 1;
+    let scale = 1;
+    let transform = 0;
+
+    const firstBrake = eventBrake > 0 && eventBrake < 600;
+    const secondBrake = eventBrake >= 600 && eventBrake < 4000;
+    const thirdBrake = eventBrake > 800 && eventBrake < 1500;
+    const fourthBrake = eventBrake >= 1500 && eventBrake < 4000;
+    const fifthBrake = scroll > 14600 && scroll < 18000;
+
+    if (firstBrake) opacity = 1 - eventBrake / 1000;
+    if (secondBrake) opacity = 0.4;
+    if (thirdBrake) scale = 1 + (eventBrake - 800) / 4000;
+    if (fourthBrake) scale = 1.17;
+    if (fifthBrake) transform = 120;
+    if (sectionBrake === 13600) transform = eventBrake / 10;
+
+    this.setState({
+      ...this.state,
+      [currentOpacity]: opacity,
+      [currentScale]: scale,
+      transformX: transform,
+    });
   };
 
   render() {
@@ -91,8 +117,12 @@ class Main extends React.Component {
       loading,
       womenData,
       menData,
-      opacity,
-      scale,
+      firstOpacity,
+      firstScale,
+      secondOpacity,
+      secondScale,
+      thirdOpacity,
+      thirdScale,
       transformX,
     } = this.state;
 
@@ -121,8 +151,8 @@ class Main extends React.Component {
         <MainScrollEvent
           className="MainScrollEvent scroll_1"
           backImg={MAIN_SCROLL_EVENT1}
-          opacity={opacity}
-          scale={scale}
+          opacity={firstOpacity}
+          scale={firstScale}
           transformX={transformX}
           firstTitle="발 끝까지 나를 사랑하는 방법"
           secondTitle="썸머 여성 샌들"
@@ -130,8 +160,6 @@ class Main extends React.Component {
         />
         {womenData && (
           <article className="product_preview_form m-w-1140 m-auto">
-            {/* <ProductPreview data={womenData[20]} />
-            <ProductPreview data={womenData[24]} /> */}
             <ProductPreview data={womenData[0]} />
             <ProductPreview data={womenData[1]} />
           </article>
@@ -139,8 +167,8 @@ class Main extends React.Component {
         <MainScrollEvent
           className="MainScrollEvent scroll_2"
           backImg={MAIN_SCROLL_EVENT2}
-          opacity={opacity}
-          scale={scale}
+          opacity={secondOpacity}
+          scale={secondScale}
           transformX={transformX}
           firstTitle="WELCOME TO"
           secondTitle="DOCS MEMBERS"
@@ -152,8 +180,8 @@ class Main extends React.Component {
           className="MainScrollEventBlack"
           backImg={MAIN_SLIDER_IMG4_LEFT}
           backImg2={MAIN_SLIDER_IMG4_RIGHT}
-          opacity={opacity}
-          scale={scale}
+          opacity={1}
+          scale={1}
           transformX={transformX}
           firstTitle="오리지널"
           secondTitle="1460"
@@ -174,8 +202,6 @@ class Main extends React.Component {
         />
         {menData && (
           <article className="product_preview_form m-w-1140 m-auto">
-            {/* <ProductPreview data={womenData[10]} />
-            <ProductPreview data={womenData[15]} /> */}
             <ProductPreview data={womenData[2]} />
             <ProductPreview data={womenData[3]} />
           </article>
@@ -190,8 +216,8 @@ class Main extends React.Component {
         <MainScrollEvent
           className="MainScrollEvent scroll_3"
           backImg={MAIN_SCROLL_EVENT3}
-          opacity={opacity}
-          scale={scale}
+          opacity={thirdOpacity}
+          scale={thirdScale}
           transformX={transformX}
           firstTitle="닥터마틴"
           secondTitle="반항적인"

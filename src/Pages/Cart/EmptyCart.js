@@ -5,10 +5,7 @@ import { PATH_BACK } from "config";
 class EmptyCart extends React.Component {
   render() {
     return (
-      <div
-        className="EmptyCart"
-        style={{ display: this.props.select === 0 ? "block" : "none" }}
-      >
+      <div className="EmptyCart">
         <div className="empty_cart_wrapper">
           <div className="empty_cart_header">
             <button className="empty_back">
