@@ -1,4 +1,5 @@
 import React from "react";
+import { connect } from "react-redux";
 import { Link } from "react-router-dom";
 import NavFooterIcon from "../NavFooterIcon";
 import Menu from "Pages/Main/Main_HamburderList/Menu";
@@ -28,8 +29,13 @@ class Nav extends React.Component {
   };
 
   render() {
-    const { userInput, pressEnterHandler, inputChangeHandler } = this.props;
-    console.log(pressEnterHandler);
+    const {
+      cartList,
+      userInput,
+      pressEnterHandler,
+      inputChangeHandler,
+    } = this.props;
+    const loginToken = localStorage.getItem("token");
 
     return (
       <header className="Nav">
@@ -39,10 +45,12 @@ class Nav extends React.Component {
               <li>
                 <Link to="/login">로그인</Link>
               </li>
-              <li>
-                <Link to="/signup" className="nav_sign_up_btn">
-                  회원가입
-                </Link>
+              <li
+                className={
+                  loginToken ? "none_nav_sign_up_btn" : "nav_sign_up_btn"
+                }
+              >
+                <Link to="/signup">회원가입</Link>
               </li>
               <li>
                 <a href="">매장찾기</a>
@@ -107,12 +115,23 @@ class Nav extends React.Component {
                 path={PATH_WISH}
               />
               <Link to="/cart">
-                <NavFooterIcon
-                  width="28"
-                  heigth="33"
-                  view="0 0 28 33"
-                  path={PATH_CART}
-                />
+                <div className="cartIcon">
+                  <NavFooterIcon
+                    width="28"
+                    heigth="33"
+                    view="0 0 28 33"
+                    path={PATH_CART}
+                  />
+                  <p
+                    className={
+                      cartList.length > 0
+                        ? "cartItemLength"
+                        : "noneCartItemLength"
+                    }
+                  >
+                    {cartList.length}
+                  </p>
+                </div>
               </Link>
               <NavFooterIcon
                 width="39"
@@ -136,4 +155,10 @@ class Nav extends React.Component {
   }
 }
 
-export default Nav;
+const mapStateToProps = (state) => {
+  return {
+    cartList: state.cartList,
+  };
+};
+
+export default connect(mapStateToProps)(Nav);

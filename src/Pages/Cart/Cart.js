@@ -35,7 +35,9 @@ class Cart extends React.Component {
   getTotalPrice = (data) => {
     let result = 0;
     for (let i in data) {
-      result += data[i].originPrice;
+      const originPrice = data[i].originPrice;
+      const currentQuantity = data[i].currentQuantity;
+      result += originPrice * currentQuantity;
     }
     return result;
   };
@@ -43,7 +45,10 @@ class Cart extends React.Component {
   getTotalDiscountedPrice = (data) => {
     let result = 0;
     for (let i in data) {
-      result += data[i].originPrice - data[i].salePrice;
+      const originPrice = data[i].originPrice;
+      const salePrice = data[i].salePrice;
+      const currentQuantity = data[i].currentQuantity;
+      result += (originPrice - salePrice) * currentQuantity;
     }
     return result;
   };
@@ -117,7 +122,7 @@ class Cart extends React.Component {
                       d={PATH_DEL_ICON}
                     />
                   </svg>
-                  <p> 선택 삭제 ({select}) </p>
+                  <p> 선택 삭제 ({cartList.length}) </p>
                 </button>
               </div>
             </div>
