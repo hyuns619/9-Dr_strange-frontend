@@ -1,5 +1,8 @@
 import React from "react";
+import { connect } from "react-redux";
 import SizeBtn from "Components/SizeBtn";
+import { addCart } from "store/actions";
+import { addCartActionHandler } from "./addCartFunction";
 import { MODAL_CANCEL, PLUS, MINUS } from "config";
 import "./CartModal.scss";
 
@@ -16,6 +19,7 @@ class CartModal extends React.Component {
   }
 
   componentDidMount() {
+    // fetch(`${DETAIL_API}/${productAPI}`)
     fetch("http://localhost:3000/data/productDetailInfo.json")
       .then((res) => res.json())
       .then((res) =>
@@ -53,7 +57,8 @@ class CartModal extends React.Component {
         currentSale: +currentSale - +salePrice,
         currentQuantity: currentQuantity - 1,
       });
-    } else if (type === "plus") {
+    }
+    if (type === "plus") {
       this.setState({
         currentOrigin: +currentOrigin + +originPrice,
         currentSale: +currentSale + +salePrice,
@@ -70,6 +75,13 @@ class CartModal extends React.Component {
       currentOrigin: +originPrice * +e.target.value,
       currentSale: +salePrice * +e.target.value,
     });
+  };
+
+  // 장바구니 버튼 클릭시 상품 store에 저장
+  addCartHandler = () => {
+    const { modalClickHandelr, addCart } = this.props;
+    addCartActionHandler(this.state, addCart);
+    modalClickHandelr();
   };
 
   render() {
@@ -151,9 +163,9 @@ class CartModal extends React.Component {
           </dciv>
 
           <div className={currentSize !== 0 ? "cart_btn_on" : "cart_btn_off"}>
-            {/* <button onClick={() => addCartHandler(productData)}> */}
-            {currentSize !== 0 ? "장바구니 담기" : "사이즈를 선택해주세요."}
-            {/* </button> */}
+            <button onClick={() => this.addCartHandler()}>
+              {currentSize !== 0 ? "장바구니 담기" : "사이즈를 선택해주세요."}
+            </button>
           </div>
         </section>
       )
@@ -161,4 +173,4 @@ class CartModal extends React.Component {
   }
 }
 
-export default CartModal;
+export default connect(null, { addCart })(CartModal);

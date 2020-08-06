@@ -3,12 +3,7 @@ export const addCart = (cartInfo) => ({
   payload: cartInfo,
 });
 
-export const changeQuantity = (cartInfo, changeType, input) => ({
-  type: "CHANGE_QUANTITY",
-  payload: { item: cartInfo, changeType, input },
-});
-
-export const deleteCart = (productNum) => ({
+export const deleteCart = (itemIndex) => ({
   type: "DELETE_CART",
-  productNum,
+  itemIndex,
 });

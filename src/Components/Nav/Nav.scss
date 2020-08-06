@@ -1,17 +1,26 @@
 .Nav {
 	font-size: 12px;
 	box-shadow: 0 3px 7px 0 rgba(0, 0, 0, 0.1);
+
 	.nav_container {
 		.nav_menu ul {
 			display: flex;
 			justify-content: flex-end;
 			font-family: 돋움, Dotum, sans-serif;
 			padding: 12px 0;
+
 			li {
 				margin-left: 20px;
-				.nav_sign_up_btn {
+			}
+
+			.nav_sign_up_btn {
+				a {
 					font-weight: 700;
 				}
+			}
+
+			.none_nav_sign_up_btn {
+				display: none;
 			}
 		}
 	}
@@ -175,8 +184,42 @@
 				display: flex;
 				justify-content: flex-end;
 				align-items: center;
+
 				.NavFooterIcon {
 					padding-left: 32px;
+				}
+
+				.cartIcon {
+					position: relative;
+
+					.cartItemLength {
+						z-index: -1;
+						display: block;
+						position: absolute;
+						top: 7px;
+						left: 34px;
+						font-size: 16px;
+						font-weight: 700;
+						width: 24px;
+						height: 24px;
+						text-align: center;
+						padding-top: 6px;
+						background-color: #ffe716;
+					}
+
+					.noneCartItemLength {
+						z-index: -1;
+						display: block;
+						position: absolute;
+						top: 7px;
+						left: 34px;
+						font-size: 16px;
+						font-weight: 700;
+						width: 24px;
+						height: 24px;
+						text-align: center;
+						padding-top: 6px;
+					}
 				}
 			}
 		}
