@@ -38,10 +38,8 @@ class CartProductList extends React.Component {
     const {
       itemIndex,
       data: {
-        productNum,
         productImg,
         productName,
-        color,
         currentSize,
         currentQuantity,
         salePrice,
@@ -74,7 +72,7 @@ class CartProductList extends React.Component {
               </button>
               <button
                 className="close_btn"
-                onClick={() => this.selectDelHandler(productNum)}
+                onClick={() => this.selectDelHandler(itemIndex)}
               >
                 <svg viewBox="0 0 42 42" fill="#666">
                   <path pid="0" d={PATH_CLOSE_ICON}></path>
@@ -92,7 +90,6 @@ class CartProductList extends React.Component {
                 <div className="order_product_info">
                   <h2 className="order_product_title">{productName}</h2>
                   <ul className="order_product_detail">
-                    <li className="detail_info">컬러: {color}</li>
                     <li className="detail_info">사이즈(UK) {currentSize}</li>
                     <li className="detail_info">수량 : {currentQuantity}</li>
                     <li className="point_option_btn">

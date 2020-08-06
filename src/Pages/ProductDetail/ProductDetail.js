@@ -12,6 +12,7 @@ import ReviewBoard from "./ReviewBoard";
 import QnaBoard from "./QnaBoard";
 import RefundForm from "./RefundForm";
 import { addCart } from "store/actions";
+import { addCartActionHandler } from "Components/CartModal/addCartFunction";
 import {
   DETAIL_API,
   CART_API,
@@ -126,6 +127,13 @@ class ProductDetail extends React.Component {
         currentQuantity: currentQuantity + 1,
       });
     }
+    if (type === "plus") {
+      this.setState({
+        currentOrigin: +currentOrigin + +originPrice,
+        currentSale: +currentSale + +salePrice,
+        currentQuantity: currentQuantity + 1,
+      });
+    }
   };
 
   // input 창에 수량 입력 시 현재 수량 및 가격 변동
@@ -146,13 +154,11 @@ class ProductDetail extends React.Component {
     });
   };
 
-  addCartHandler = (clearCartInfo) => {
-    const { productData, currentSize, currentQuantity } = this.state;
+  // 장바구니 버튼 클릭시 상품 정보 store에 저장
+  addCartHandler = () => {
     const { addCart } = this.props;
-    const cartInfo = { ...productData, currentSize, currentQuantity };
-    addCart(cartInfo);
-    alert("상품이 장바구니에 담겼습니다.");
-    clearCartInfo();
+    addCartActionHandler(this.state, addCart);
+    this.clearCartInfo();
   };
 
   clearCartInfo = () => {
@@ -329,7 +335,7 @@ class ProductDetail extends React.Component {
                 <div className="buying_btn">
                   <button
                     className="buying_btn_cart main-font"
-                    onClick={() => this.addCartHandler(this.clearCartInfo)}
+                    onClick={() => this.addCartHandler()}
                   >
                     장바구니
                   </button>
