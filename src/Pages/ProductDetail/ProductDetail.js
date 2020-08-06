@@ -120,7 +120,8 @@ class ProductDetail extends React.Component {
         currentSale: +currentSale - +salePrice,
         currentQuantity: currentQuantity - 1,
       });
-    } else if (type === "plus") {
+    }
+    if (type === "plus") {
       this.setState({
         currentOrigin: +currentOrigin + +originPrice,
         currentSale: +currentSale + +salePrice,

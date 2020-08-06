@@ -20,7 +20,7 @@ class ProductList extends React.Component {
   }
 
   componentDidMount() {
-    const listAPI = this.props.match.params.category;
+    // const listAPI = this.props.match.params.category;
     // fetch(
     //   `${LIST_API}?menu_name=${listAPI}`
     // )
